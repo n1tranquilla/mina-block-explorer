@@ -237,19 +237,27 @@ pub fn ZkAppTransactionsPage() -> impl IntoView {
     let (loading_sig, _) = create_signal(false);
     let table_columns = vec![
         TableColumn {
-            column: "Account".to_string(),
+            column: "Hash".to_string(),
             is_searchable: false,
         },
         TableColumn {
-            column: "Balance".to_string(),
+            column: "Prover".to_string(),
             is_searchable: false,
         },
         TableColumn {
-            column: "Commands".to_string(),
+            column: "Age".to_string(),
             is_searchable: false,
         },
         TableColumn {
-            column: "Delegate".to_string(),
+            column: "Updates".to_string(),
+            is_searchable: false,
+        },
+        TableColumn {
+            column: "Updated Accounts".to_string(),
+            is_searchable: false,
+        },
+        TableColumn {
+            column: "Amount".to_string(),
             is_searchable: false,
         },
     ];

@@ -24,7 +24,7 @@ pub fn Header() -> impl IntoView {
     if BERKELEY_FEATURES_ENABLED == "true" {
         if let Some(v) = txn_entries.as_mut() {
             v.push(NavEntry {
-                href: "/commands/zk-txn".to_string(),
+                href: "/commands/zk-app".to_string(),
                 text: "zkApp Commands".to_string(),
                 icon: NavIcon::ZKApps,
                 ..Default::default()
