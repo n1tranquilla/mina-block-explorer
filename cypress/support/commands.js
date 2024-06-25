@@ -145,7 +145,9 @@ Cypress.Commands.add("testSpotlight", (heading, id, expected_fields) => {
 Cypress.Commands.add("assertTableRecordsCorrect", (heading) => {
   cy.aliasTableRows(heading, "table-rows");
   cy.get("@table-rows").then(($rows) => {
-    cy.get(".metadata")
+    cy.wrap($rows)
+      .parents("section")
+      .find(".metadata")
       .invoke("text")
       .then((text) => {
         let [displaying, available, total] = text.split(" of ");
