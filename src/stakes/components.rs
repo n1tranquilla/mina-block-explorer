@@ -5,10 +5,13 @@ use leptos_router::*;
 
 #[component]
 pub fn StakesPageContents(
-    #[prop(into)] current_epoch: i64,
-    #[prop(into)] slot_in_epoch: i64,
-    selected_epoch: Option<i64>,
+    #[prop(into)] current_epoch: u64,
+    #[prop(into)] slot_in_epoch: u64,
+    #[prop(into)] epoch_num_accounts: Option<u64>,
+    #[prop(into)] total_num_accounts: Option<u64>,
+    selected_epoch: Option<u64>,
 ) -> impl IntoView {
+    let (metadata_sig, set_metadata) = create_signal(None);
     let header_epoch = selected_epoch.unwrap_or(current_epoch);
     let next_epoch = header_epoch + 1;
     let prev_epoch = header_epoch.saturating_sub(1); // prevents underflow
@@ -58,6 +61,15 @@ pub fn StakesPageContents(
         })
     });
 
+    create_effect(move |_| {
+        set_metadata.set(Some(TableMetadata {
+            total_records: total_num_accounts,
+            available_records: epoch_num_accounts,
+            displayed_records: u64::try_from(data_sig.get().map(|d| d.len()).unwrap_or_default())
+                .unwrap_or_default(),
+        }));
+    });
+
     let table_columns = vec![
         TableColumn {
             column: "Key".to_string(),
@@ -79,10 +91,13 @@ pub fn StakesPageContents(
             column: "Total Stake %".to_string(),
             sort_direction: Some(TableSortDirection::Desc),
             width: Some(String::from(TABLE_COL_NUMERIC_WIDTH)),
+            alignment: Some(ColumnTextAlignment::Right),
             ..Default::default()
         },
         TableColumn {
             column: "Block Win %".to_string(),
+            width: Some(String::from(TABLE_COL_NUMERIC_WIDTH)),
+            alignment: Some(ColumnTextAlignment::Right),
             ..Default::default()
         },
         TableColumn {
@@ -94,6 +109,7 @@ pub fn StakesPageContents(
         TableColumn {
             column: "Delegators".to_string(),
             width: Some(String::from(TABLE_COL_NUMERIC_WIDTH)),
+            alignment: Some(ColumnTextAlignment::Right),
             ..Default::default()
         },
     ];
@@ -102,17 +118,7 @@ pub fn StakesPageContents(
         <TableSectionTemplate
             table_columns
             data_sig
-            metadata=Signal::derive(move || {
-                Some(TableMetadata {
-                    total_records: None,
-                    available_records: None,
-                    displayed_records: u64::try_from(
-                            data_sig.get().map(|d| d.len()).unwrap_or_default(),
-                        )
-                        .unwrap_or_default(),
-                })
-            })
-
+            metadata=metadata_sig.into()
             section_heading=section_heading_sig.get()
             is_loading=resource.loading()
             controls=move || {
@@ -120,7 +126,7 @@ pub fn StakesPageContents(
                     <EpochButton
                         disabled=prev_epoch_sig
                             .get()
-                            .map(|prev_epoch| prev_epoch < 0)
+                            .map(|prev_epoch| prev_epoch == 0)
                             .unwrap_or_default()
                         text="Previous"
                         style_variant=EpochStyleVariant::Secondary
@@ -180,7 +186,7 @@ pub fn StakesPageContents(
 #[component]
 pub fn EpochButton(
     #[prop(into)] text: String,
-    #[prop(optional)] epoch_target: i64,
+    #[prop(optional)] epoch_target: u64,
     #[prop(default = false)] disabled: bool,
     style_variant: EpochStyleVariant,
     #[prop(default=String::new(), into)] href: String,

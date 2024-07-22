@@ -17,6 +17,7 @@ pub fn get_stake(stake: &StakingLedgersQueryStakes) -> String {
         .as_ref()
         .and_then(|delegation_totals| delegation_totals.total_delegated_nanomina)
         .map(|stake| nanomina_to_mina(stake as u64))
+        .map(|number| format_number_for_html(&number, LHS_MAX_DIGIT_PADDING))
         .unwrap_or("0".to_string())
 }
 
@@ -69,17 +70,17 @@ pub fn get_delegators_count(stake: &StakingLedgersQueryStakes) -> String {
 }
 
 pub async fn load_data(
-    epoch: Option<i64>,
+    epoch: Option<u64>,
     public_key: Option<String>,
     delegate: Option<String>,
 ) -> Result<staking_ledgers_query::ResponseData, MyError> {
     let variables = staking_ledgers_query::Variables {
         sort_by: staking_ledgers_query::StakeSortByInput::STAKE_DESC,
-        limit: Some(TABLE_ROW_LIMIT),
+        limit: Some(TABLE_ROW_LIMIT as i64),
         query: staking_ledgers_query::StakeQueryInput {
             public_key,
             delegate,
-            epoch,
+            epoch: epoch.map(|x| x as i64),
             ..Default::default()
         },
     };

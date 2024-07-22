@@ -17,7 +17,7 @@ import { parseFormattedNumber } from "../helpers";
 
 let test_suite_data = [
   {
-    tag: "@tier1",
+    tag: "@tier2",
     url: `/blocks/${BLOCK_STATE_HASH_MIXED_USER_COMMANDS}/commands/user`,
     table: {
       heading: "User Commands",
@@ -34,7 +34,7 @@ let test_suite_data = [
     ],
   },
   {
-    tag: "@tier1",
+    tag: "@tier2",
     url: "/blocks",
     table: {
       heading: "Blocks",
@@ -96,7 +96,7 @@ let test_suite_data = [
     tests: [],
   },
   {
-    tag: "@tier1",
+    tag: "@tier2",
     url: "/commands/user",
     table: {
       heading: "User Commands",
@@ -158,7 +158,7 @@ let test_suite_data = [
     tests: [],
   },
   {
-    tag: "@tier1",
+    tag: "@tier2",
     url: `/addresses/accounts/${ROMEK_ADDRESS}`,
     table: {
       heading: "User Commands",
@@ -221,7 +221,7 @@ let test_suite_data = [
     ],
   },
   {
-    tag: "@tier1",
+    tag: "@tier2",
     url: "/addresses/accounts",
     table: {
       heading: "Accounts",
@@ -239,7 +239,7 @@ let test_suite_data = [
           input: 5000,
           assertion: function () {
             cy.aliasTableRows("Accounts", "table-rows");
-            cy.get("@table-rows").should("have.lengthOf", 100);
+            cy.get("@table-rows").should("have.lengthOf", 25);
             cy.assertForEachColumnValue("Accounts", "Balance", (text) => {
               let balance = parseFormattedNumber(text);
               expect(balance).to.be.lte(5000);
@@ -311,10 +311,18 @@ let test_suite_data = [
         },
       ],
     },
-    tests: [],
+    tests: [
+      () => {
+        cy.get(".metadata")
+          .invoke("text")
+          .then((text) => {
+            expect(text.split(" of ").length).to.equal(3);
+          });
+      },
+    ],
   },
   {
-    tag: "@tier1",
+    tag: "@tier2",
     url: "/commands/internal",
     table: {
       heading: "Internal Commands",
@@ -369,7 +377,7 @@ let test_suite_data = [
     tests: [],
   },
   {
-    tag: "@tier1",
+    tag: "@tier2",
     url: "/snarks",
     table: {
       heading: "SNARKs",
@@ -428,9 +436,9 @@ test_suite_data.forEach((test_suite_datum) => {
       cy.intercept("GET", "/summary").as("summaryData");
       cy.wait("@summaryData").then(() => {
         cy.tableHasOrderedColumns(heading, columns);
-
         filter_tests.forEach(({ column, input, assertion }) => {
-          cy.get("th").contains(column).parents("th").find("input").as("input");
+          cy.get("th").contains(column).find("input").as("input");
+          cy.wait(1000);
           cy.get("@input").type(input, { delay: 0 });
           cy.wait(1000);
           assertion();

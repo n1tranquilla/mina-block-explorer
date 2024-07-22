@@ -1,9 +1,6 @@
 use super::{components::*, functions::*, table_trait::*};
 use crate::{
-    common::{
-        components::*, constants::BERKELEY_FEATURES_ENABLED, functions::*, models::*, spotlight::*,
-        table::*,
-    },
+    common::{components::*, constants::*, functions::*, models::*, spotlight::*, table::*},
     icons::*,
 };
 use leptos::*;
@@ -137,7 +134,7 @@ pub fn CommandSpotlightPage() -> impl IntoView {
                                             transaction.get_amount(),
                                         );
                                         Some(
-                                            if transaction.get_kind() == "STAKE_DELEGATION" {
+                                            if transaction.get_kind() == STAKE_DELEGATION_TYPE {
                                                 convert_array_to_span(
                                                     vec![
                                                         amount_el,
@@ -317,10 +314,10 @@ pub fn CommandSpotlightPage() -> impl IntoView {
                                                         let transaction_clone = transaction.clone();
                                                         view! {
                                                             <tr>
-                                                                <TableCell>
+                                                                <TableCell column_opt=None>
                                                                     {convert_to_span(transaction.get_block_height())}
                                                                 </TableCell>
-                                                                <TableCell>
+                                                                <TableCell column_opt=None>
                                                                     {if !transaction_clone.get_memo().is_empty() {
                                                                         convert_array_to_span(
                                                                                 vec![

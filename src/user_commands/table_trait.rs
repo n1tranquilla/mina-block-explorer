@@ -1,7 +1,13 @@
 use super::graphql::transactions_query::{
     TransactionsQueryOtherTransactions, TransactionsQueryTransactions,
 };
-use crate::common::{functions::*, models::ColorVariant, table::*};
+use crate::common::{
+    constants::{LHS_MAX_DIGIT_PADDING, LHS_MAX_SPACE_FEES},
+    functions::*,
+    models::ColorVariant,
+    table::*,
+};
+use heck::ToTitleCase;
 use leptos::*;
 
 impl TableData for Vec<Option<TransactionsQueryTransactions>> {
@@ -60,8 +66,8 @@ impl TableData for Vec<Option<TransactionsQueryTransactions>> {
                         ),
                     ),
                     convert_to_pill(transaction.get_nonce(), ColorVariant::Grey),
-                    decorate_with_mina_tag(transaction.get_fee()),
-                    decorate_with_mina_tag(transaction.get_amount()),
+                    convert_to_span(transaction.get_fee()),
+                    convert_to_span(transaction.get_amount()),
                 ],
                 None => vec![],
             })
@@ -108,9 +114,9 @@ impl TransactionsTrait for TransactionsQueryTransactions {
     }
 
     fn get_kind(&self) -> String {
-        self.kind
-            .as_ref()
-            .map_or_else(String::new, |o| o.to_string())
+        self.kind.as_ref().map_or_else(String::new, |o| {
+            ToTitleCase::to_title_case(o.as_str()).to_string()
+        })
     }
 
     fn get_nonce(&self) -> String {
@@ -149,6 +155,7 @@ impl TransactionsTrait for TransactionsQueryTransactions {
         self.fee
             .map(|f| f.round() as u64)
             .map(nanomina_to_mina)
+            .map(|number| format_number_for_html(&number, LHS_MAX_SPACE_FEES))
             .unwrap_or_default()
     }
 
@@ -162,6 +169,7 @@ impl TransactionsTrait for TransactionsQueryTransactions {
         self.amount
             .map(|f| f.round() as u64)
             .map(nanomina_to_mina)
+            .map(|number| format_number_for_html(&number, LHS_MAX_DIGIT_PADDING))
             .unwrap_or_default()
     }
 

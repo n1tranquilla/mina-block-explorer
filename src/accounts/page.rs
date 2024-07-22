@@ -66,6 +66,7 @@ fn AccountsPageContents() -> impl IntoView {
         TableColumn {
             column: "Nonce".to_string(),
             width: Some(String::from(TABLE_COL_NUMERIC_WIDTH)),
+            alignment: Some(ColumnTextAlignment::Right),
             ..Default::default()
         },
         TableColumn {
@@ -95,7 +96,7 @@ fn AccountsPageContents() -> impl IntoView {
             data_sig
             metadata=Signal::derive(move || {
                 Some(TableMetadata {
-                    total_records: u64::try_from(summary_sig.get().total_num_accounts).ok(),
+                    total_records: Some(summary_sig.get().total_num_accounts),
                     displayed_records: u64::try_from(
                             data_sig.get().map(|a| a.len()).unwrap_or_default(),
                         )

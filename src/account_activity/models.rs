@@ -3,6 +3,7 @@ use super::graphql::account_activity_query::{
 };
 use crate::{common::functions::*, Params};
 use chrono::{DateTime, Utc};
+use heck::ToTitleCase;
 use leptos_router::Params;
 use serde::{Deserialize, Serialize};
 
@@ -47,9 +48,9 @@ pub struct AccountActivityQueryDirectionalTransactions {
     pub hash: Option<String>,
     pub amount: Option<f64>,
     pub date_time: Option<DateTime<Utc>>,
-    pub height: Option<i64>,
+    pub height: Option<u64>,
     pub kind: Option<String>,
-    pub nonce: Option<i64>,
+    pub nonce: Option<u64>,
     pub failure_reason: Option<String>,
     pub memo: Option<String>,
     pub canonical: Option<bool>,
@@ -76,9 +77,9 @@ impl From<AccountActivityQueryIncomingTransactions>
             } else {
                 None
             },
-            height: i.block_height,
+            height: Some(i.block_height.unwrap_or_default() as u64),
             kind: i.kind,
-            nonce: i.nonce,
+            nonce: Some(i.nonce.unwrap_or_default() as u64),
             failure_reason: i.failure_reason,
             memo: i.memo,
             canonical: i.canonical,
@@ -107,9 +108,9 @@ impl From<AccountActivityQueryOutgoingTransactions>
             } else {
                 None
             },
-            height: i.block_height,
+            height: Some(i.block_height.unwrap_or_default() as u64),
             kind: i.kind,
-            nonce: i.nonce,
+            nonce: Some(i.nonce.unwrap_or_default() as u64),
             failure_reason: i.failure_reason,
             memo: i.memo,
             canonical: i.canonical,
@@ -170,7 +171,9 @@ impl AccountActivityQueryDirectionalTransactionTrait
     }
 
     fn get_kind(&self) -> String {
-        self.kind.as_ref().map_or(String::new(), |f| f.to_string())
+        self.kind.as_ref().map_or(String::new(), |o| {
+            ToTitleCase::to_title_case(o.as_str()).to_string()
+        })
     }
 
     fn get_nonce(&self) -> String {
